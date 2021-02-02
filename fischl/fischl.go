@@ -8,7 +8,9 @@ import (
 )
 
 type Fischl struct {
-	Client *http.Client
+	Client  *http.Client
+	Header  map[string]string
+	request *http.Request
 }
 
 func NewFischl() *Fischl {
@@ -18,28 +20,36 @@ func NewFischl() *Fischl {
 }
 
 func (f *Fischl) HttpGet(url string) ([]byte, error) {
-	request, _ := http.NewRequest("GET", url, nil)
-	request.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36")
-	info, _ := f.Client.Do(request)
-	defer info.Body.Close()
-	return ioutil.ReadAll(info.Body)
+	f.request, _ = http.NewRequest("GET", url, nil)
+	return f.run()
 }
 
 func (f *Fischl) HttpPost(url, data string) ([]byte, error) {
+	f.Header = map[string]string{
+		"Content-Type": "application/json",
+	}
 	body := bytes.NewBuffer([]byte(data))
-	request, _ := http.NewRequest("POST", url, body)
-	request.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36")
-	request.Header.Set("Content-Type", "application/json")
-	info, _ := f.Client.Do(request)
-	defer info.Body.Close()
-	return ioutil.ReadAll(info.Body)
+	f.request, _ = http.NewRequest("POST", url, body)
+	return f.run()
 }
 
 func (f *Fischl) HttpPut(url, data string) ([]byte, error) {
 	body := strings.NewReader(data)
-	request, _ := http.NewRequest("PUT", url, body)
-	request.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36")
-	info, _ := f.Client.Do(request)
+	f.request, _ = http.NewRequest("PUT", url, body)
+	return f.run()
+}
+
+func (f *Fischl) run() ([]byte, error) {
+	f.request.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36")
+	if len(f.Header) != 0 {
+		for k, v := range f.Header {
+			f.request.Header.Set(k, v)
+		}
+	}
+	info, err := f.Client.Do(f.request)
+	if err != nil {
+		return nil, err
+	}
 	defer info.Body.Close()
 	return ioutil.ReadAll(info.Body)
 }
