@@ -27,7 +27,7 @@ func Timestamp(date string) string {
 
 //获取全格式日期
 func Format(timestamp interface{}) string {
-	return Date(timestamp, "2006-01-02 15:04:05")
+	return Date("2006-01-02 15:04:05", timestamp)
 }
 
 func Time() string {
@@ -35,7 +35,7 @@ func Time() string {
 }
 
 //获取格式日期
-func Date(timestamp interface{}, format string) string {
+func Date(format string, timestamp interface{}) string {
 	sec := int64(makeInt(timestamp))
 	date := time.Unix(sec, 0).Format(format)
 	return date
@@ -54,7 +54,7 @@ func Week(weeks int) string {
 		weekDay = 7
 	}
 	timestamp := makeInt(Time()) - (weekDay-1-weeks*7)*24*3600
-	return Date(timestamp, "2006-01-02")
+	return Date("2006-01-02", timestamp)
 }
 
 //获取指定月第一天日期
