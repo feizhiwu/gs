@@ -12,10 +12,12 @@ import (
 
 func MakeUint(num interface{}) uint {
 	switch num.(type) {
-	case int:
-		return uint(num.(int))
 	case uint:
 		return num.(uint)
+	case int:
+		return uint(num.(int))
+	case uint8:
+		return uint(num.(uint8))
 	case float32:
 		return uint(num.(float32))
 	case float64:
