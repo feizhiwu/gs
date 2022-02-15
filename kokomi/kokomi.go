@@ -9,7 +9,7 @@ import (
 	"unsafe"
 )
 
-type Query struct {
+type query struct {
 	db    **gorm.DB
 	data  map[string]interface{}
 	page  uint
@@ -19,7 +19,7 @@ type Query struct {
 	num   uint16
 }
 
-func NewQuery(db **gorm.DB, data map[string]interface{}) Query {
+func NewQuery(db **gorm.DB, data map[string]interface{}) query {
 	var page, limit uint
 	if albedo.MakeUint(data["page"]) != 0 {
 		page = albedo.MakeUint(data["page"])
@@ -31,7 +31,7 @@ func NewQuery(db **gorm.DB, data map[string]interface{}) Query {
 	} else {
 		limit = 20
 	}
-	query := Query{db: db, data: data, page: page, limit: limit}
+	newQuery := query{db: db, data: data, page: page, limit: limit}
 	if data["order"] != nil {
 		order := albedo.MakeString(data["order"])
 		var columns []string
@@ -54,79 +54,79 @@ func NewQuery(db **gorm.DB, data map[string]interface{}) Query {
 				order += "," + v
 			}
 		}
-		*query.db = (*query.db).Order(order)
+		*newQuery.db = (*newQuery.db).Order(order)
 	} else {
-		*query.db = (*query.db).Order("id desc")
+		*newQuery.db = (*newQuery.db).Order("id desc")
 	}
-	return query
+	return newQuery
 }
 
-func (q *Query) Eq(args ...string) {
+func (q *query) Eq(args ...string) {
 	if q.checkKey(args...) {
 		*q.db = (*q.db).Where(q.field+" = ?", q.data[q.key])
 	}
 }
 
-func (q *Query) Gt(args ...string) {
+func (q *query) Gt(args ...string) {
 	if q.checkKey(args...) {
 		*q.db = (*q.db).Where(q.field+" > ?", q.data[q.key])
 	}
 }
 
-func (q *Query) Gte(args ...string) {
+func (q *query) Gte(args ...string) {
 	if q.checkKey(args...) {
 		*q.db = (*q.db).Where(q.field+" >= ?", q.data[q.key])
 	}
 }
 
-func (q *Query) Lt(args ...string) {
+func (q *query) Lt(args ...string) {
 	if q.checkKey(args...) {
 		*q.db = (*q.db).Where(q.field+" < ?", q.data[q.key])
 	}
 }
 
-func (q *Query) Lte(args ...string) {
+func (q *query) Lte(args ...string) {
 	if q.checkKey(args...) {
 		*q.db = (*q.db).Where(q.field+" <= ?", q.data[q.key])
 	}
 }
 
-func (q *Query) Like(args ...string) {
+func (q *query) Like(args ...string) {
 	if q.checkKey(args...) {
 		*q.db = (*q.db).Where(q.field+" like ?", "%"+q.data[q.key].(string)+"%")
 	}
 }
 
 // AwLike after wildcard后通配
-func (q *Query) AwLike(args ...string) {
+func (q *query) AwLike(args ...string) {
 	if q.checkKey(args...) {
 		*q.db = (*q.db).Where(q.field+" like ?", q.data[q.key].(string)+"%")
 	}
 }
 
-func (q *Query) In(args ...string) {
+func (q *query) In(args ...string) {
 	if q.checkKey(args...) {
 		*q.db = (*q.db).Where(q.field+" in (?)", q.data[q.key])
 	}
 }
 
-func (q *Query) NotIn(args ...string) {
+func (q *query) NotIn(args ...string) {
 	if q.checkKey(args...) {
 		*q.db = (*q.db).Where(q.field+" not in (?)", q.data[q.key])
 	}
 }
 
-func (q *Query) EqZero(args ...string) {
+func (q *query) EqZero(args ...string) {
 	q.checkKey(args...)
 	*q.db = (*q.db).Where(q.field + " = 0")
 }
 
-func (q *Query) GtZero(args ...string) {
+func (q *query) GtZero(args ...string) {
 	q.checkKey(args...)
 	*q.db = (*q.db).Where(q.field + " > 0")
 }
 
-func (q *Query) IsEmpty(args ...string) {
+func (q *query) IsEmpty(args ...string) {
 	if q.checkKey(args...) {
 		parseBool, _ := strconv.ParseBool(albedo.MakeString(q.data[q.key]))
 		if parseBool {
@@ -137,18 +137,18 @@ func (q *Query) IsEmpty(args ...string) {
 	}
 }
 
-func (q *Query) Null(args ...string) {
+func (q *query) Null(args ...string) {
 	q.checkKey(args...)
 	*q.db = (*q.db).Where(q.field + " is null")
 }
 
-func (q *Query) NotNull(args ...string) {
+func (q *query) NotNull(args ...string) {
 	q.checkKey(args...)
 	*q.db = (*q.db).Where(q.field + " is not null")
 }
 
 //wildcard 通配
-func (q *Query) Wc(args ...string) {
+func (q *query) Wc(args ...string) {
 	if q.checkKey(args...) {
 		if q.data[q.key] == "*" {
 			*q.db = (*q.db).Where(q.field + " > 0")
@@ -159,7 +159,7 @@ func (q *Query) Wc(args ...string) {
 }
 
 // Raw 原生where语句
-func (q *Query) Raw(query interface{}, args ...interface{}) {
+func (q *query) Raw(query interface{}, args ...interface{}) {
 	var ok bool
 	var value interface{}
 	var values []interface{}
@@ -174,7 +174,7 @@ func (q *Query) Raw(query interface{}, args ...interface{}) {
 	}
 }
 
-func (q *Query) Pages(value interface{}) *Query {
+func (q *query) Pages(value interface{}) *query {
 	t := reflect.TypeOf(value).Elem()
 	v := reflect.ValueOf(value)
 	for i := 0; i < t.NumField(); i++ {
@@ -193,12 +193,12 @@ func (q *Query) Pages(value interface{}) *Query {
 	return q
 }
 
-func (q *Query) List(value interface{}) *Query {
+func (q *query) List(value interface{}) *query {
 	(*q.db).Limit(q.limit).Offset(getOffset(q.page, q.limit)).Find(value)
 	return q
 }
 
-func (q *Query) checkKey(args ...string) bool {
+func (q *query) checkKey(args ...string) bool {
 	arr := strings.Split(args[0], ".")
 	if len(args) == 1 {
 		if len(arr) == 1 {
