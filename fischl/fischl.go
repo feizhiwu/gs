@@ -7,24 +7,24 @@ import (
 	"strings"
 )
 
-type Fischl struct {
+type fischl struct {
 	Client  *http.Client
 	Header  map[string]string
 	request *http.Request
 }
 
-func NewFischl() *Fischl {
-	fischl := new(Fischl)
+func Active() *fischl {
+	fischl := new(fischl)
 	fischl.Client = &http.Client{}
 	return fischl
 }
 
-func (f *Fischl) HttpGet(url string) ([]byte, error) {
+func (f *fischl) HttpGet(url string) ([]byte, error) {
 	f.request, _ = http.NewRequest("GET", url, nil)
 	return f.run()
 }
 
-func (f *Fischl) HttpPost(url, data string) ([]byte, error) {
+func (f *fischl) HttpPost(url, data string) ([]byte, error) {
 	f.Header = map[string]string{
 		"Content-Type": "application/json",
 	}
@@ -33,13 +33,13 @@ func (f *Fischl) HttpPost(url, data string) ([]byte, error) {
 	return f.run()
 }
 
-func (f *Fischl) HttpPut(url, data string) ([]byte, error) {
+func (f *fischl) HttpPut(url, data string) ([]byte, error) {
 	body := strings.NewReader(data)
 	f.request, _ = http.NewRequest("PUT", url, body)
 	return f.run()
 }
 
-func (f *Fischl) run() ([]byte, error) {
+func (f *fischl) run() ([]byte, error) {
 	f.request.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36")
 	if len(f.Header) != 0 {
 		for k, v := range f.Header {

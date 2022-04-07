@@ -19,7 +19,7 @@ type query struct {
 	num   uint16
 }
 
-func NewQuery(db **gorm.DB, data map[string]interface{}) query {
+func Active(db **gorm.DB, data map[string]interface{}) query {
 	var page, limit uint
 	if albedo.MakeUint(data["page"]) != 0 {
 		page = albedo.MakeUint(data["page"])
