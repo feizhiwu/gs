@@ -177,20 +177,19 @@ func (q *query) Raw(query interface{}, args ...interface{}) {
 func (q *query) Pages(value interface{}) *query {
 	v := reflect.ValueOf(value)
 	if v.Kind() != reflect.Ptr {
-		fmt.Printf("%v is not a pointer", value)
-	} else {
-		i := reflect.Indirect(v)
-		if i.Kind() == reflect.Ptr && i.IsNil() {
-			i.Set(reflect.New(i.Type().Elem()))
-			v = i
-		}
-		e := v.Elem()
-		e.FieldByName("Page").Set(reflect.ValueOf(q.page))
-		e.FieldByName("Limit").Set(reflect.ValueOf(q.limit))
-		var count uint
-		(*q.db).Count(&count)
-		e.FieldByName("Count").Set(reflect.ValueOf(count))
+		panic(fmt.Sprintf("%v is not a pointer", value))
 	}
+	i := reflect.Indirect(v)
+	if i.Kind() == reflect.Ptr && i.IsNil() {
+		i.Set(reflect.New(i.Type().Elem()))
+		v = i
+	}
+	e := v.Elem()
+	e.FieldByName("Page").Set(reflect.ValueOf(q.page))
+	e.FieldByName("Limit").Set(reflect.ValueOf(q.limit))
+	var count uint
+	(*q.db).Count(&count)
+	e.FieldByName("Count").Set(reflect.ValueOf(count))
 	return q
 }
 
