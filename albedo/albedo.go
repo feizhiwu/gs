@@ -48,6 +48,15 @@ func MakeUint32(num interface{}) uint32 {
 	}
 }
 
+func MakeUint64(num interface{}) uint64 {
+	switch num.(type) {
+	case uint64:
+		return num.(uint64)
+	default:
+		return uint64(MakeUint(num))
+	}
+}
+
 func MakeFloat32(num interface{}) float32 {
 	switch num.(type) {
 	case float32:

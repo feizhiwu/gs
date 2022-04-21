@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-//日期转换时间戳
+// Timestamp 日期转换时间戳
 func Timestamp(date string) string {
 	var layout string
 	s := strings.Split(date, " ")
@@ -25,7 +25,7 @@ func Timestamp(date string) string {
 	return strconv.FormatInt(timestamp.Unix(), 10)
 }
 
-//获取全格式日期
+// Format 获取全格式日期
 func Format(timestamp interface{}) string {
 	return Date("2006-01-02 15:04:05", timestamp)
 }
@@ -34,7 +34,7 @@ func Time() string {
 	return strconv.FormatInt(time.Now().Unix(), 10)
 }
 
-//获取格式日期
+// Date 获取格式日期
 func Date(format string, timestamp interface{}) string {
 	sec := int64(makeInt(timestamp))
 	date := time.Unix(sec, 0).Format(format)
@@ -57,7 +57,7 @@ func Week(weeks int) string {
 	return Date("2006-01-02", timestamp)
 }
 
-//获取指定月第一天日期
+// Month 获取指定月第一天日期
 func Month(months int) string {
 	year, month, _ := time.Now().Date()
 	thisMonth := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)

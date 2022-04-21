@@ -1,12 +1,12 @@
 package kokomi
 
 import (
+	"fmt"
 	"github.com/feizhiwu/gs/albedo"
 	"github.com/jinzhu/gorm"
 	"reflect"
 	"strconv"
 	"strings"
-	"unsafe"
 )
 
 type query struct {
@@ -147,7 +147,7 @@ func (q *query) NotNull(args ...string) {
 	*q.db = (*q.db).Where(q.field + " is not null")
 }
 
-//wildcard 通配
+// Wc wildcard 通配
 func (q *query) Wc(args ...string) {
 	if q.checkKey(args...) {
 		if q.data[q.key] == "*" {
@@ -175,20 +175,21 @@ func (q *query) Raw(query interface{}, args ...interface{}) {
 }
 
 func (q *query) Pages(value interface{}) *query {
-	t := reflect.TypeOf(value).Elem()
 	v := reflect.ValueOf(value)
-	for i := 0; i < t.NumField(); i++ {
-		name := t.Field(i).Name
-		switch name {
-		case "Page":
-			*(*uint)(unsafe.Pointer(v.Elem().FieldByName(name).Addr().Pointer())) = q.page
-		case "Limit":
-			*(*uint)(unsafe.Pointer(v.Elem().FieldByName(name).Addr().Pointer())) = q.limit
-		case "Count":
-			var count uint
-			(*q.db).Count(&count)
-			*(*uint)(unsafe.Pointer(v.Elem().FieldByName(name).Addr().Pointer())) = count
+	if v.Kind() != reflect.Ptr {
+		fmt.Printf("%v is not a pointer", value)
+	} else {
+		i := reflect.Indirect(v)
+		if i.Kind() == reflect.Ptr && i.IsNil() {
+			i.Set(reflect.New(i.Type().Elem()))
+			v = i
 		}
+		e := v.Elem()
+		e.FieldByName("Page").Set(reflect.ValueOf(q.page))
+		e.FieldByName("Limit").Set(reflect.ValueOf(q.limit))
+		var count uint
+		(*q.db).Count(&count)
+		e.FieldByName("Count").Set(reflect.ValueOf(count))
 	}
 	return q
 }
