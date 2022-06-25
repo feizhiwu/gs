@@ -186,7 +186,7 @@ func (q *query) Pages(value interface{}) *query {
 	}
 	e := v.Elem()
 	e.FieldByName("Page").Set(reflect.ValueOf(q.page))
-	e.FieldByName("Limit").Set(reflect.ValueOf(q.size))
+	e.FieldByName("Size").Set(reflect.ValueOf(q.size))
 	var count uint
 	(*q.db).Count(&count)
 	e.FieldByName("Count").Set(reflect.ValueOf(count))
@@ -223,10 +223,10 @@ func (q *query) checkKey(args ...string) bool {
 	return true
 }
 
-func getOffset(page interface{}, limit uint32) uint32 {
+func getOffset(page interface{}, size uint32) uint32 {
 	num := albedo.MakeUint32(page) - 1
 	if num < 0 {
 		num = 0
 	}
-	return num * limit
+	return num * size
 }
