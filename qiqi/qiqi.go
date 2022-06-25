@@ -13,25 +13,25 @@ type query struct {
 	db    **gorm.DB
 	data  map[string]interface{}
 	page  uint32
-	limit uint32
+	size  uint32
 	field string
 	key   string
 	num   uint16
 }
 
 func Active(db **gorm.DB, data map[string]interface{}) query {
-	var page, limit uint32
+	var page, size uint32
 	if albedo.MakeUint32(data["page"]) != 0 {
 		page = albedo.MakeUint32(data["page"])
 	} else {
 		page = 1
 	}
-	if albedo.MakeUint32(data["limit"]) != 0 {
-		limit = albedo.MakeUint32(data["limit"])
+	if albedo.MakeUint32(data["size"]) != 0 {
+		size = albedo.MakeUint32(data["size"])
 	} else {
-		limit = 20
+		size = 20
 	}
-	newQuery := query{db: db, data: data, page: page, limit: limit}
+	newQuery := query{db: db, data: data, page: page, size: size}
 	if data["order"] != nil {
 		order := albedo.MakeString(data["order"])
 		var columns []string
@@ -186,7 +186,7 @@ func (q *query) Pages(value interface{}) *query {
 	}
 	e := v.Elem()
 	e.FieldByName("Page").Set(reflect.ValueOf(q.page))
-	e.FieldByName("Limit").Set(reflect.ValueOf(q.limit))
+	e.FieldByName("Limit").Set(reflect.ValueOf(q.size))
 	var count uint
 	(*q.db).Count(&count)
 	e.FieldByName("Count").Set(reflect.ValueOf(count))
@@ -194,7 +194,7 @@ func (q *query) Pages(value interface{}) *query {
 }
 
 func (q *query) List(value interface{}) *query {
-	(*q.db).Limit(q.limit).Offset(getOffset(q.page, q.limit)).Find(value)
+	(*q.db).Limit(q.size).Offset(getOffset(q.page, q.size)).Find(value)
 	return q
 }
 
