@@ -8,12 +8,12 @@ import (
 
 func Test(t *testing.T) {
 	m := map[string]string{
-		"1": "111",
-		"2": "333",
-		"3": "222",
+		"az": "111",
+		"ba": "333",
+		"cb": "222",
 	}
 	var o Order
-	o.Mode = "value"
+	o.Mode = "key"
 	for k, v := range m {
 		o.List = append(o.List, Rule{k, v})
 	}

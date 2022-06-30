@@ -1,6 +1,9 @@
 package zhongli
 
-import "strconv"
+import (
+	"github.com/feizhiwu/gs/albedo"
+	"strconv"
+)
 
 type Rule struct {
 	Key   interface{}
@@ -21,26 +24,22 @@ func (o Order) Len() int {
 }
 
 func (o Order) Less(i, j int) bool {
-	if o.Mode == "key" {
-		return makeInt(o.List[i].Key) < makeInt(o.List[j].Key)
+	if o.Mode == "value" {
+		if isNum(albedo.MakeString(o.List[i].Value)) {
+			return albedo.MakeInt(o.List[i].Value) < albedo.MakeInt(o.List[j].Value)
+		} else {
+			return albedo.MakeString(o.List[i].Value) < albedo.MakeString(o.List[j].Value)
+		}
+	} else {
+		if isNum(albedo.MakeString(o.List[i].Key)) {
+			return albedo.MakeInt(o.List[i].Key) < albedo.MakeInt(o.List[j].Key)
+		} else {
+			return albedo.MakeString(o.List[i].Key) < albedo.MakeString(o.List[j].Key)
+		}
 	}
-	return makeInt(o.List[i].Value) < makeInt(o.List[j].Value)
 }
 
-func makeInt(num interface{}) int {
-	switch num.(type) {
-	case int:
-		return num.(int)
-	case uint:
-		return int(num.(uint))
-	case float32:
-		return int(num.(float32))
-	case float64:
-		return int(num.(float64))
-	case string:
-		i, _ := strconv.Atoi(num.(string))
-		return i
-	default:
-		return 0
-	}
+func isNum(s string) bool {
+	_, err := strconv.ParseFloat(s, 64)
+	return err == nil
 }
