@@ -216,7 +216,7 @@ func (q *query) checkKey(args ...string) bool {
 		}
 		q.key = args[1]
 	}
-	if q.data[q.key] == nil {
+	if q.data[q.key] == nil || q.data[q.key] == "" {
 		return false
 	}
 	q.num++
