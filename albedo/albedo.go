@@ -39,6 +39,15 @@ func MakeInt(num interface{}) int {
 	}
 }
 
+func MakeUint8(num interface{}) uint8 {
+	switch num.(type) {
+	case uint8:
+		return num.(uint8)
+	default:
+		return uint8(MakeUint(num))
+	}
+}
+
 func MakeUint32(num interface{}) uint32 {
 	switch num.(type) {
 	case uint32:
@@ -66,6 +75,20 @@ func MakeFloat32(num interface{}) float32 {
 	case string:
 		f, _ := strconv.ParseFloat(num.(string), 64)
 		return float32(f)
+	default:
+		return 0
+	}
+}
+
+func MakeFloat64(num interface{}) float64 {
+	switch num.(type) {
+	case float32:
+		return float64(num.(float32))
+	case float64:
+		return num.(float64)
+	case string:
+		f, _ := strconv.ParseFloat(num.(string), 64)
+		return f
 	default:
 		return 0
 	}
